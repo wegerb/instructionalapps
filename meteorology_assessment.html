@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteorology Assessment: Fronts and Weather Patterns</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2d3436, #636e72);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #2d3436;
+            border-bottom: 3px solid #74b9ff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .front-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .front-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .front-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .front-card.cold {
+            border-color: #74b9ff;
+            background: linear-gradient(135deg, #e3f2ff, #74b9ff20);
+        }
+
+        .front-card.warm {
+            border-color: #fd79a8;
+            background: linear-gradient(135deg, #ffe8f0, #fd79a820);
+        }
+
+        .front-card.occluded {
+            border-color: #a29bfe;
+            background: linear-gradient(135deg, #f0efff, #a29bfe20);
+        }
+
+        .front-card.stationary {
+            border-color: #00b894;
+            background: linear-gradient(135deg, #e8f8f5, #00b89420);
+        }
+
+        .front-symbol {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .weather-map {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .interactive-question {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .question-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: #74b9ff;
+            background: #f8f9ff;
+        }
+
+        .option.selected {
+            border-color: #74b9ff;
+            background: #e3f2ff;
+        }
+
+        .option.correct {
+            border-color: #00b894;
+            background: #e8f8f5;
+        }
+
+        .option.incorrect {
+            border-color: #e17055;
+            background: #ffeee8;
+        }
+
+        .drag-drop-container {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+
+        .draggable-item {
+            background: #74b9ff;
+            color: white;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: move;
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+
+        .draggable-item:hover {
+            transform: scale(1.05);
+        }
+
+        .drop-zone {
+            background: white;
+            border: 2px dashed #74b9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #74b9ff;
+            font-weight: bold;
+        }
+
+        .drop-zone.highlight {
+            background: #e3f2ff;
+            border-color: #0984e3;
+        }
+
+        .btn {
+            background: #74b9ff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            background: #0984e3;
+        }
+
+        .btn.secondary {
+            background: #636e72;
+        }
+
+        .btn.secondary:hover {
+            background: #2d3436;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            background: linear-gradient(90deg, #74b9ff, #0984e3);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .score-display {
+            background: #2d3436;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .front-types {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌦️ Meteorology Assessment</h1>
+            <p>Fronts and Weather Patterns Interactive Module</p>
+        </div>
+
+        <div class="content">
+            <!-- Progress Tracking -->
+            <div class="progress-bar">
+                <div class="progress" id="progressBar" style="width: 0%">0% Complete</div>
+            </div>
+
+            <!-- Section 1: Introduction to Weather Fronts -->
+            <div class="section">
+                <h2>Understanding Weather Fronts</h2>
+                <p>Weather fronts are boundaries between air masses with different temperatures, humidity, and pressure. They are crucial for understanding weather patterns and predicting changes in atmospheric conditions.</p>
+                
+                <div class="front-types">
+                    <div class="front-card cold" onclick="showFrontInfo('cold')">
+                        <div class="front-symbol">❄️</div>
+                        <h3>Cold Front</h3>
+                        <p>Fast-moving, steep boundary</p>
+                    </div>
+                    <div class="front-card warm" onclick="showFrontInfo('warm')">
+                        <div class="front-symbol">🌡️</div>
+                        <h3>Warm Front</h3>
+                        <p>Slow-moving, gradual slope</p>
+                    </div>
+                    <div class="front-card occluded" onclick="showFrontInfo('occluded')">
+                        <div class="front-symbol">🌪️</div>
+                        <h3>Occluded Front</h3>
+                        <p>Complex, multi-layered</p>
+                    </div>
+                    <div class="front-card stationary" onclick="showFrontInfo('stationary')">
+                        <div class="front-symbol">⚖️</div>
+                        <h3>Stationary Front</h3>
+                        <p>Little to no movement</p>
+                    </div>
+                </div>
+
+                <div id="frontInfo" style="display: none; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Section 2: Interactive Question 1 -->
+            <div class="section">
+                <div class="interactive-question">
+                    <div class="question-title">Question 1: Which type of front typically brings thunderstorms and heavy rain followed by clearing skies?</div>
+                    <div class="options" id="q1-options">
+                        <div class="option" onclick="selectAnswer(1, 'A', false)">A) Warm Front</div>
+                        <div class="option" onclick="selectAnswer(1, 'B', true)">B) Cold Front</div>
+                        <div class="option" onclick="selectAnswer(1, 'C', false)">C) Stationary Front</div>
+                        <div class="option" onclick="selectAnswer(1, 'D', false)">D) Occluded Front</div>
+                    </div>
+                    <button class="btn" onclick="checkAnswer(1)" id="q1-check" style="display: none;">Check Answer</button>
+                    <div id="q1-feedback" class="feedback" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Section 3: Weather Map Interpretation -->
+            <div class="section">
+                <h2>Weather Map Symbols</h2>
+                <p>Learn to identify different front symbols on weather maps:</p>
+                
+                <div class="weather-map">
+                    <div style="text-align: center;">
+                        <h3>Common Weather Front Symbols</h3>
+                        <div style="margin: 20px 0; font-size: 1.2em;">
+                            <div style="margin: 10px 0;">🔵🔵🔵 Cold Front</div>
+                            <div style="margin: 10px 0;">🔴🔴🔴 Warm Front</div>
+                            <div style="margin: 10px 0;">🟣🟣🟣 Occluded Front</div>
+                            <div style="margin: 10px 0;">🔵🔴🔵🔴 Stationary Front</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Drag and Drop Activity -->
+            <div class="section">
+                <h2>Drag and Drop: Match Weather Patterns</h2>
+                <p>Drag the weather conditions to the correct front type:</p>
+                
+                <div style="margin: 20px 0;">
+                    <div class="draggable-item" draggable="true" data-type="thunderstorms">Thunderstorms</div>
+                    <div class="draggable-item" draggable="true" data-type="light-rain">Light, Steady Rain</div>
+                    <div class="draggable-item" draggable="true" data-type="fog">Fog and Drizzle</div>
+                    <div class="draggable-item" draggable="true" data-type="clear">Clearing Skies</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                    <div class="drop-zone" data-front="cold" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        Cold Front
+                        <div class="dropped-items"></div>
+                    </div>
+                    <div class="drop-zone" data-front="warm" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        Warm Front
+                        <div class="dropped-items"></div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="checkDragDrop()">Check Matches</button>
+                <div id="dragDropFeedback" class="feedback" style="display: none;"></div>
+            </div>
+
+            <!-- Section 5: Multiple Choice Quiz -->
+            <div class="section">
+                <div class="interactive-question">
+                    <div class="question-title">Question 2: What typically happens to temperature and pressure when a cold front passes?</div>
+                    <div class="options" id="q2-options">
+                        <div class="option" onclick="selectAnswer(2, 'A', false)">A) Temperature rises, pressure drops</div>
+                        <div class="option" onclick="selectAnswer(2, 'B', true)">B) Temperature drops, pressure rises</div>
+                        <div class="option" onclick="selectAnswer(2, 'C', false)">C) Both temperature and pressure remain steady</div>
+                        <div class="option" onclick="selectAnswer(2, 'D', false)">D) Temperature drops, pressure drops</div>
+                    </div>
+                    <button class="btn" onclick="checkAnswer(2)" id="q2-check" style="display: none;">Check Answer</button>
+                    <div id="q2-feedback" class="feedback" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Section 6: Final Question -->
+            <div class="section">
+                <div class="interactive-question">
+                    <div class="question-title">Question 3: Which front type is associated with layered clouds and widespread precipitation?</div>
+                    <div class="options" id="q3-options">
+                        <div class="option" onclick="selectAnswer(3, 'A', true)">A) Warm Front</div>
+                        <div class="option" onclick="selectAnswer(3, 'B', false)">B) Cold Front</div>
+                        <div class="option" onclick="selectAnswer(3, 'C', false)">C) Dry Line</div>
+                        <div class="option" onclick="selectAnswer(3, 'D', false)">D) Squall Line</div>
+                    </div>
+                    <button class="btn" onclick="checkAnswer(3)" id="q3-check" style="display: none;">Check Answer</button>
+                    <div id="q3-feedback" class="feedback" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Score Display -->
+            <div class="score-display" id="finalScore" style="display: none;">
+                <h2>Assessment Complete!</h2>
+                <p id="scoreText">Your Score: 0/4</p>
+                <button class="btn" onclick="resetAssessment()">Retake Assessment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let questionsAnswered = 0;
+        let totalQuestions = 4; // 3 multiple choice + 1 drag-drop
+        let answers = {};
+        let dragDropCorrect = false;
+
+        const frontInformation = {
+            cold: {
+                title: "Cold Front",
+                description: "A cold front occurs when a mass of cold, dense air pushes under a warmer air mass, forcing it upward. This creates steep, towering clouds and often brings thunderstorms, heavy rain, and rapid temperature drops. Cold fronts move quickly and bring dramatic weather changes.",
+                characteristics: [
+                    "Fast-moving (15-30 mph)",
+                    "Steep slope (1:50 to 1:100)",
+                    "Thunderstorms and heavy precipitation",
+                    "Quick temperature drop",
+                    "Rising pressure after passage"
+                ]
+            },
+            warm: {
+                title: "Warm Front",
+                description: "A warm front forms when warm air gradually slides over cooler air ahead of it. This creates a gentle slope and produces layered clouds that can extend hundreds of miles ahead of the surface front. Warm fronts bring steady, light precipitation and gradual temperature increases.",
+                characteristics: [
+                    "Slow-moving (10-15 mph)",
+                    "Gradual slope (1:150 to 1:300)",
+                    "Layered clouds (stratus, nimbostratus)",
+                    "Light, steady precipitation",
+                    "Gradual temperature rise"
+                ]
+            },
+            occluded: {
+                title: "Occluded Front",
+                description: "An occluded front occurs when a cold front catches up to a warm front, lifting the warm air completely off the ground. This creates complex weather patterns with multiple cloud layers and mixed precipitation types. Occluded fronts often form in mature cyclonic systems.",
+                characteristics: [
+                    "Complex structure with cold air at surface",
+                    "Mixed precipitation types",
+                    "Multiple cloud layers",
+                    "Associated with mature low-pressure systems",
+                    "Can produce severe weather"
+                ]
+            },
+            stationary: {
+                title: "Stationary Front",
+                description: "A stationary front exists when neither cold nor warm air is advancing. The boundary between air masses remains relatively fixed, leading to days of similar weather conditions. These fronts can eventually become active and start moving again.",
+                characteristics: [
+                    "Little to no movement",
+                    "Weather persists for several days",
+                    "Light precipitation possible",
+                    "Clouds parallel to front",
+                    "Can become active with changing pressure patterns"
+                ]
+            }
+        };
+
+        function showFrontInfo(frontType) {
+            const info = frontInformation[frontType];
+            const infoDiv = document.getElementById('frontInfo');
+            
+            infoDiv.innerHTML = `
+                <h3>${info.title}</h3>
+                <p><strong>Description:</strong> ${info.description}</p>
+                <p><strong>Key Characteristics:</strong></p>
+                <ul>
+                    ${info.characteristics.map(char => `<li>${char}</li>`).join('')}
+                </ul>
+            `;
+            
+            infoDiv.style.display = 'block';
+        }
+
+        function selectAnswer(questionNum, option, correct) {
+            // Clear previous selections
+            const options = document.querySelectorAll(`#q${questionNum}-options .option`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Mark current selection
+            event.target.classList.add('selected');
+            
+            // Store answer
+            answers[questionNum] = {option: option, correct: correct};
+            
+            // Show check button
+            document.getElementById(`q${questionNum}-check`).style.display = 'inline-block';
+        }
+
+        function checkAnswer(questionNum) {
+            const answer = answers[questionNum];
+            const feedback = document.getElementById(`q${questionNum}-feedback`);
+            const options = document.querySelectorAll(`#q${questionNum}-options .option`);
+            
+            // Disable all options
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                if (opt.classList.contains('selected')) {
+                    if (answer.correct) {
+                        opt.classList.add('correct');
+                    } else {
+                        opt.classList.add('incorrect');
+                    }
+                }
+            });
+
+            // Show correct answer if wrong was selected
+            if (!answer.correct) {
+                options.forEach(opt => {
+                    if (opt.textContent.includes(getCorrectAnswer(questionNum))) {
+                        opt.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Update score
+            if (answer.correct) {
+                score++;
+                feedback.textContent = "Correct! " + getExplanation(questionNum);
+                feedback.className = "feedback correct";
+            } else {
+                feedback.textContent = "Incorrect. " + getExplanation(questionNum);
+                feedback.className = "feedback incorrect";
+            }
+            
+            feedback.style.display = 'block';
+            document.getElementById(`q${questionNum}-check`).style.display = 'none';
+            
+            questionsAnswered++;
+            updateProgress();
+        }
+
+        function getCorrectAnswer(questionNum) {
+            const correctAnswers = {
+                1: "B) Cold Front",
+                2: "B) Temperature drops, pressure rises",
+                3: "A) Warm Front"
+            };
+            return correctAnswers[questionNum];
+        }
+
+        function getExplanation(questionNum) {
+            const explanations = {
+                1: "Cold fronts are known for bringing thunderstorms and heavy rain followed by clearing skies as the dense, cold air pushes through rapidly.",
+                2: "When a cold front passes, the incoming cold air mass causes temperature to drop while the denser air increases atmospheric pressure.",
+                3: "Warm fronts create layered clouds (stratus and nimbostratus) that produce widespread, steady precipitation over large areas."
+            };
+            return explanations[questionNum];
+        }
+
+        // Drag and Drop functionality
+        let draggedElement = null;
+        const correctMatches = {
+            'thunderstorms': 'cold',
+            'clear': 'cold',
+            'light-rain': 'warm',
+            'fog': 'warm'
+        };
+
+        document.addEventListener('dragstart', function(e) {
+            if (e.target.classList.contains('draggable-item')) {
+                draggedElement = e.target;
+                e.dataTransfer.effectAllowed = 'move';
+            }
+        });
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.target.closest('.drop-zone').classList.add('highlight');
+        }
+
+        document.addEventListener('dragleave', function(e) {
+            if (e.target.classList.contains('drop-zone')) {
+                e.target.classList.remove('highlight');
+            }
+        });
+
+        function drop(e) {
+            e.preventDefault();
+            const dropZone = e.target.closest('.drop-zone');
+            const droppedItems = dropZone.querySelector('.dropped-items');
+            
+            if (draggedElement) {
+                // Clone the dragged element instead of moving it
+                const clonedElement = draggedElement.cloneNode(true);
+                clonedElement.draggable = false;
+                clonedElement.style.margin = '5px';
+                droppedItems.appendChild(clonedElement);
+                
+                dropZone.classList.remove('highlight');
+            }
+        }
+
+        function checkDragDrop() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            let correctCount = 0;
+            let totalDropped = 0;
+            
+            dropZones.forEach(zone => {
+                const frontType = zone.dataset.front;
+                const droppedItems = zone.querySelectorAll('.draggable-item');
+                
+                droppedItems.forEach(item => {
+                    totalDropped++;
+                    const itemType = item.dataset.type;
+                    if (correctMatches[itemType] === frontType) {
+                        correctCount++;
+                        item.style.background = '#00b894';
+                    } else {
+                        item.style.background = '#e17055';
+                    }
+                });
+            });
+            
+            const feedback = document.getElementById('dragDropFeedback');
+            
+            if (correctCount === totalDropped && totalDropped > 0) {
+                dragDropCorrect = true;
+                score++;
+                feedback.textContent = `Perfect! You matched ${correctCount}/${totalDropped} items correctly. Cold fronts bring thunderstorms and clearing skies, while warm fronts bring steady rain and fog.`;
+                feedback.className = "feedback correct";
+            } else {
+                feedback.textContent = `You matched ${correctCount}/${totalDropped} items correctly. Remember: Cold fronts bring thunderstorms and clearing skies, warm fronts bring steady rain and fog.`;
+                feedback.className = "feedback incorrect";
+            }
+            
+            feedback.style.display = 'block';
+            questionsAnswered++;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = (questionsAnswered / totalQuestions) * 100;
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = Math.round(progress) + '% Complete';
+            
+            if (questionsAnswered >= totalQuestions) {
+                setTimeout(showFinalScore, 1000);
+            }
+        }
+
+        function showFinalScore() {
+            const finalScoreDiv = document.getElementById('finalScore');
+            const scoreText = document.getElementById('scoreText');
+            
+            let percentage = Math.round((score / totalQuestions) * 100);
+            let message = "";
+            
+            if (percentage >= 90) {
+                message = "Excellent work! You have mastered weather fronts!";
+            } else if (percentage >= 70) {
+                message = "Good job! You understand the basics of weather fronts.";
+            } else if (percentage >= 50) {
+                message = "Not bad, but review the material and try again.";
+            } else {
+                message = "Keep studying! Weather fronts are complex but important.";
+            }
+            
+            scoreText.innerHTML = `Your Score: ${score}/${totalQuestions} (${percentage}%)<br><span style="font-size: 0.9em;">${message}</span>`;
+            finalScoreDiv.style.display = 'block';
+        }
+
+        function resetAssessment() {
+            score = 0;
+            questionsAnswered = 0;
+            answers = {};
+            dragDropCorrect = false;
+            
+            // Reset progress bar
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0% Complete';
+            
+            // Reset all questions
+            for (let i = 1; i <= 3; i++) {
+                const options = document.querySelectorAll(`#q${i}-options .option`);
+                options.forEach(opt => {
+                    opt.classList.remove('selected', 'correct', 'incorrect');
+                    opt.style.pointerEvents = 'auto';
+                });
+                
+                document.getElementById(`q${i}-check`).style.display = 'none';
+                document.getElementById(`q${i}-feedback`).style.display = 'none';
+            }
+            
+            // Reset drag and drop
+            document.querySelectorAll('.dropped-items').forEach(container => {
+                container.innerHTML = '';
+            });
+            document.getElementById('dragDropFeedback').style.display = 'none';
+            
+            // Reset draggable items
+            document.querySelectorAll('.draggable-item').forEach(item => {
+                item.style.background = '#74b9ff';
+            });
+            
+            // Hide final score
+            document.getElementById('finalScore').style.display = 'none';
+            
+            // Scroll to top
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    </script>
+</body>
+</html>
